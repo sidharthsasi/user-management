@@ -9,7 +9,4 @@ urlpatterns = [
     path('signup/', SignUp.as_view(), name='signup'),
     path('signin', TokenObtainPairView.as_view(), name='token_obtain_pair'),
 
-    
-
-
 ]

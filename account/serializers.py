@@ -1,3 +1,5 @@
+from cmath import e
+from curses.ascii import NUL
 from dataclasses import field
 from pyexpat import model
 from webbrowser import get
@@ -6,35 +8,32 @@ from .models import Account
 # User Serializer
 class SignUpSerializer(serializers.ModelSerializer):
     
-    first_name = serializers.CharField(max_length = 50)
-    last_name = serializers.CharField(max_length = 50)
-    username = serializers.CharField(max_length = 50)
-    email = serializers.CharField(max_length = 250)
-    phone_number = serializers.IntegerField()
-    date_of_birth   = serializers.DateField
-    profile_picture = serializers.ImageField()
-    password = serializers.CharField(max_length = 50)
-    # confirm_password = serializers.CharField(max_length = 50)
-
+    
     class Meta:
         model = Account
-        fields = ('first_name','last_name','username','email','password')
+        fields = ['first_name','last_name','username','email','phone_number','date_of_birth','profile_picture', 'password']
         extra_kwargs = {'password':{'write_only':True}}
 
 
-    def create(self,validate_data):
-        # del validate_data['confirm_password']
 
-        user = Account.objects.create_user(**validate_data)
-        
+    def create(self, validated_data):
+        user = Account.objects.create_user(**validated_data )          
         return user
 
-    # def validate(self,value):
+    def validate(self, validated_data):
+        username = validated_data.get('username',None),
+        email = validated_data.get('email',None),
+        phone_number = validated_data.get('phone_number',None),
 
-    #     if value.get('password')!=value.get('confirm_password'):
-    #         raise serializers.ValidationError("Password does not match")
-    #     return value
 
+        if Account.objects.filter(username=username).exists():
+            raise serializers.ValidationError({'username':('username already exist')})
+        if Account.objects.filter(email=email).exists():
+            raise serializers.ValidationError({'email':('email already exist')})
+        if Account.objects.filter(phone_number=phone_number).exists():
+            raise serializers.ValidationError({'phone_number':('phone number already exist')})
+        
+        return super().validate(validated_data)
 
 
 
